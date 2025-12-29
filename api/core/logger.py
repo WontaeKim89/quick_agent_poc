@@ -21,7 +21,7 @@ class ColoredFormatter(logging.Formatter):
 
     def __init__(self, *args, use_colors=True, **kwargs):
         super().__init__(*args, **kwargs)
-        self.use_colors = use_colors and sys.stderr.isatty()
+        self.use_colors = use_colors
 
     def format(self, record):
         if self.use_colors:
@@ -50,6 +50,7 @@ class APILogger(Singleton):
 
         # 컬러 출력 설정 (환경변수로 제어)
         use_colors = os.getenv("LOG_COLORS", "true").lower() == "true"
+        force_colors = os.getenv("FORCE_COLORS", "false").lower() == "true"  # VSCode 터미널용
 
         if not self.logger.handlers:
 
@@ -63,8 +64,10 @@ class APILogger(Singleton):
                 # 로컬 환경에서는 더 간단한 포맷 사용
                 console_format = "[%(levelname)-8s] %(message)s"
 
+            # VSCode 터미널이나 파이프 환경에서도 컬러 활성화 가능하도록 설정
+            enable_colors = use_colors and (sys.stderr.isatty() or force_colors)
             stream_fmt = ColoredFormatter(
-                console_format, "%H:%M:%S", use_colors=use_colors
+                console_format, "%H:%M:%S", use_colors=enable_colors
             )
             stream_handler.setFormatter(stream_fmt)
             self.logger.addHandler(stream_handler)

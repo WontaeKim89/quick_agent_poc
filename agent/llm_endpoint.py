@@ -1,3 +1,26 @@
+from typing import Callable
+from functools import wraps
+from langchain_openai import AzureChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+from config.settings import get_config
+from api.core.logger import APILogger
+
+logger = APILogger()
+
+
+class LLMInvokeException(Exception):
+    """LLM 호출 중 발생하는 예외"""
+    def __init__(self, message: str, error_type: str = None, original_error: Exception = None,
+                 user_query: str = None, error_code: int = None, additional_info: dict = None):
+        self.message = message
+        self.error_type = error_type
+        self.original_error = original_error
+        self.user_query = user_query
+        self.error_code = error_code
+        self.additional_info = additional_info or {}
+        super().__init__(self.message)
+
+
 class SafeLLMWrapper:
     """
     LLM을 감싸서 자동으로 에러 처리하는 Wrapper
@@ -25,13 +48,13 @@ class SafeLLMWrapper:
         """
         config = get_config()
         self._llm = AzureChatOpenAI(
-            model=model_name,
+            model=config.get("agent-azure-openai-model-name"),
             api_key=config.get("agent-azure-openai-api-key"),
             api_version=config.get("agent-azure-openai-api-version"),
             azure_endpoint=config.get("agent-azure-openai-endpoint"),
             streaming=True,
             max_retries=3,
-            reasoning_effort="minimal",
+            # reasoning_effort="minimal",
         )
         logger.info(f">>>> Load Model Name : {self._llm.model_name}")
         self._model_name = model_name
