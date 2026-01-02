@@ -31,8 +31,8 @@ def create_app():
     add_cors_middleware(app)
 
     # 라우터 등록
-    app.include_router(chat_router, prefix="/api", tags=["chat"])
-    app.include_router(healthcheck_router, prefix="/api", tags=["healthcheck"])
+    app.include_router(chat_router, prefix="/agent", tags=["chat"])
+    app.include_router(healthcheck_router, prefix="/agent", tags=["healthcheck"])
     return app
 
 app = create_app()

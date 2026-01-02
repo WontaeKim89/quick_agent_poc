@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List
 
 
 class Message(BaseModel):
@@ -8,4 +7,5 @@ class Message(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    messages: List[Message]
+    chat_id: str
+    message: Message
